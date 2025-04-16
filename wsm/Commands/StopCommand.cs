@@ -22,12 +22,12 @@ public class StopCommand : ICommand
             service.Refresh();
             if (service.Status == ServiceControllerStatus.Stopped)
             {
-                Console.WriteLine("Service stopped successfully.");
+                console.Output.WriteLine("Service stopped successfully.");
             }
         }
         else
         {
-            Console.WriteLine("Service not found.");
+            console.Output.WriteLine("Service not found.");
         }
     }
 }

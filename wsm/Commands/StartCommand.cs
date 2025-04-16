@@ -22,12 +22,12 @@ public class StartCommand : ICommand
             service.Refresh();
             if (service.Status == ServiceControllerStatus.Running)
             {
-                Console.WriteLine("Service started successfully.");
+                console.Output.WriteLine("Service started successfully.");
             }
         }
         else
         {
-            Console.WriteLine("Service not found.");
+            console.Output.WriteLine("Service not found.");
         }
     }
 }

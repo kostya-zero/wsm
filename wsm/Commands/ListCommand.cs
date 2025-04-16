@@ -31,7 +31,7 @@ public class ListCommand : ICommand
                 Array.Sort(services, (x, y) => string.Compare(x.Status.ToString(), y.Status.ToString(), StringComparison.OrdinalIgnoreCase));
                 break;
             default:
-                Console.WriteLine("Invalid sort option. Available options are: displayName, serviceName, status.");
+                console.Output.WriteLine("Invalid sort option. Available options are: displayName, serviceName, status.");
                 return;
         }
 
@@ -44,12 +44,12 @@ public class ListCommand : ICommand
         int maxServiceNameLength = services.Max(s => s.ServiceName.Length) + 2;
         int maxStatusLength = services.Max(s => s.Status.ToString().Length) + 2;
 
-        Console.WriteLine("\e[1m\e[97mDisplay Name" + new string(' ', maxDisplayNameLength - "Display Name".Length) +
+        console.Output.WriteLine("\e[1m\e[97mDisplay Name" + new string(' ', maxDisplayNameLength - "Display Name".Length) +
                           "Service Name" + new string(' ', maxServiceNameLength - "Service Name".Length) +
                           "Status\e[0m");
         foreach (var service in services)
         {
-            Console.WriteLine(
+            console.Output.WriteLine(
                 service.DisplayName + new string(' ', maxDisplayNameLength - service.DisplayName.Length) +
                 service.ServiceName + new string(' ', maxServiceNameLength - service.ServiceName.Length) +
                 service.Status + new string(' ', maxStatusLength - service.Status.ToString().Length)
