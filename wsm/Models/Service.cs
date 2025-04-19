@@ -52,14 +52,17 @@ public class Service
         _serviceController.Refresh();
     }
 
-    public void Stop()
+    public void Stop(bool wait = true)
     {
         if (_serviceController.Status != ServiceControllerStatus.Stopped)
         {
             try
             {
                 _serviceController.Stop();
-                _serviceController.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(15));
+                if (wait)
+                {
+                    _serviceController.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(10));
+                }
             }
             catch (System.ComponentModel.Win32Exception ex)
             {
