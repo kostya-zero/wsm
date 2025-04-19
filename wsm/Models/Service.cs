@@ -61,7 +61,7 @@ public class Service
                 _serviceController.Stop();
                 if (wait)
                 {
-                    _serviceController.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(10));
+                    _serviceController.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(15)); // Aligning timeout with Start method
                 }
             }
             catch (System.ComponentModel.Win32Exception ex)
