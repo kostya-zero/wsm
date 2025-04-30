@@ -6,7 +6,6 @@ using wsm.Repositories;
 
 namespace wsm.Commands;
 
-
 [Command("list", Description = "List all services with their status.")]
 public class ListCommand : ICommand
 {

@@ -19,13 +19,12 @@ public class StopCommand : ICommand
     public async ValueTask ExecuteAsync(IConsole console)
     {
         Service? service = ServiceRepository.GetServiceByName(Name);
-    
 
         if (service != null)
         {
             if (service.Status == ServiceControllerStatus.Stopped)
             {
-                console.Output.WriteLine($"Service '{service.DisplayName}' is already stopped.");
+                console.Output.WriteLine("Service is already stopped.");
                 return;
             }
 

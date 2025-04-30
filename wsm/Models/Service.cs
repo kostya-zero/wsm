@@ -52,6 +52,15 @@ public class Service
         _serviceController.Refresh();
     }
 
+    public void Restart(bool wait = true)
+    {
+        if (_serviceController.Status == ServiceControllerStatus.Running)
+        {
+            Stop(wait);
+        }
+        Start();
+    }
+
     public void Stop(bool wait = true)
     {
         if (_serviceController.Status != ServiceControllerStatus.Stopped)
