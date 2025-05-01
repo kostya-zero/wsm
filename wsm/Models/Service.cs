@@ -1,6 +1,5 @@
-﻿// Service.cs
-using System.Diagnostics.Contracts;
-using System.ServiceProcess;
+﻿using System.ServiceProcess;
+using System.Security.Principal;
 
 namespace wsm.Models;
 
@@ -50,6 +49,70 @@ public class Service
     {
         // Refresh the service status
         _serviceController.Refresh();
+    }
+
+    public void Continue(bool wait = true)
+    {
+        if (_serviceController.Status == ServiceControllerStatus.Paused)
+        {
+            try
+            {
+                _serviceController.Continue();
+                if (wait)
+                {
+                    _serviceController.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(15)); // Aligning timeout with Start method
+                }
+            }
+            catch (System.ComponentModel.Win32Exception ex)
+            {
+                Console.WriteLine($"Error continuing service: {ex.Message}");
+                Console.WriteLine("Make sure you have the necessary permissions to continue this service.");
+                return;
+            }
+            catch (InvalidOperationException ex)
+            {
+                Console.WriteLine($"Error continuing service: {ex.Message}");
+                Console.WriteLine("Make sure you have the necessary permissions to continue this service.");
+                return;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error: {ex.Message}");
+                return;
+            }
+        }
+    }
+
+    public void Pause(bool wait = true)
+    {
+        if (_serviceController.Status == ServiceControllerStatus.Running)
+        {
+            try
+            {
+                _serviceController.Pause();
+                if (wait)
+                {
+                    _serviceController.WaitForStatus(ServiceControllerStatus.Paused, TimeSpan.FromSeconds(15)); // Aligning timeout with Start method
+                }
+            }
+            catch (System.ComponentModel.Win32Exception ex)
+            {
+                Console.WriteLine($"Error pausing service: {ex.Message}");
+                Console.WriteLine("Make sure you have the necessary permissions to pause this service.");
+                return;
+            }
+            catch (InvalidOperationException ex)
+            {
+                Console.WriteLine($"Error pausing service: {ex.Message}");
+                Console.WriteLine("Make sure you have the necessary permissions to pause this service.");
+                return;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error: {ex.Message}");
+                return;
+            }
+        }
     }
 
     public void Restart(bool wait = true)
