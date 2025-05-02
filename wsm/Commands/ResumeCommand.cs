@@ -7,8 +7,8 @@ using wsm.Repositories;
 
 namespace wsm.Commands;
 
-[Command("continue", Description = "Continues a paused service.")]
-public class ContinueCommand : ICommand
+[Command("resume", Description = "Resume a paused service.")]
+public class ResumeCommand : ICommand
 {
     [CommandParameter(0, Description = "The name of the service to resume.")]
     public required string Name { get; init; }
@@ -21,25 +21,34 @@ public class ContinueCommand : ICommand
         {
             if (service.Status != ServiceControllerStatus.Paused)
             {
-                console.Output.WriteLine("Service is not paused.");
+                await console.Output.WriteLineAsync("Service is not paused.");
                 return;
             }
 
-            service.Continue(true);
+            try
+            {
+                service.Resume(true);
+            }
+            catch (Exception ex)
+            {
+                await console.Output.WriteLineAsync("Error occured: " + ex.Message);   
+                Environment.Exit(1);
+            }
+            
             service.Refresh();
 
             if (service.Status == ServiceControllerStatus.Running)
             {
-                console.Output.WriteLine("Service continued successfully.");
+                await console.Output.WriteLineAsync("Service resumed successfully.");
             }
             else
             {
-                console.Output.WriteLine("Failed to continue service.");
+                await console.Output.WriteLineAsync("Failed to continue service.");
             }
         }
         else
         {
-            console.Output.WriteLine("Service not found.");
+            await console.Output.WriteLineAsync("Service not found.");
         }
     }
 }

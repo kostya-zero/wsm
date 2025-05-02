@@ -1,14 +1,32 @@
 ﻿using System.ServiceProcess;
 using System.Security.Principal;
+using wsm.Exceptions;
 
 namespace wsm.Models;
 
+/// <summary>
+/// Base class for service that utilizes the ServiceController class.
+/// </summary>
 public class Service
 {
+    /// <summary>
+    /// The ServiceController instance that interacts with the Windows service.
+    /// </summary>
     private readonly ServiceController _serviceController;
 
+    /// <summary>
+    /// The display name of the service.
+    /// </summary>
     public string DisplayName => _serviceController.DisplayName;
+
+    /// <summary>
+    /// The real name (identifier) of the service.
+    /// </summary>
     public string ServiceName => _serviceController.ServiceName;
+
+    /// <summary>
+    /// Status of the service.
+    /// </summary>
     public ServiceControllerStatus Status => _serviceController.Status;
 
     public Service(ServiceController serviceController)
@@ -16,42 +34,56 @@ public class Service
         _serviceController = serviceController;
     }
 
-    public void Start()
+    /// <summary>
+    /// Start the service
+    /// </summary>
+    /// <param name="wait">If true, waits up to 15 seconds for the service to start. Default is true</param>
+    /// <exception cref="ServiceOperationException">An error occured while accessing Windows API.</exception>
+    /// <exception cref="PermissionsException">Not enough permissions to do this.</exception>
+    /// <exception cref="UnexpectedException">An unexpected error.</exception>
+    public void Start(bool wait = true)
     {
         if (_serviceController.Status != ServiceControllerStatus.Running)
         {
             try
             {
                 _serviceController.Start();
-                _serviceController.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(15));
+                if (wait)
+                {
+                    _serviceController.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(15));
+                }
             }
             catch (System.ComponentModel.Win32Exception ex)
             {
-                Console.WriteLine($"Error starting service: {ex.Message}");
-                Console.WriteLine("Make sure you have the necessary permissions to start this service.");
-                return;
+                throw new ServiceOperationException();
             }
             catch (InvalidOperationException ex)
             {
-                Console.WriteLine($"Error starting service: {ex.Message}");
-                Console.WriteLine("Make sure you have the necessary permissions to start this service.");
-                return;
+                throw new PermissionsException();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Unexpected error: {ex.Message}");
-                return;
+                throw new UnexpectedException($"Unexpected error: {ex.Message}");
             }
         }
     }
 
+    /// <summary>
+    /// Refresh the service current state.
+    /// </summary>
     public void Refresh()
     {
-        // Refresh the service status
         _serviceController.Refresh();
     }
 
-    public void Continue(bool wait = true)
+    /// <summary>
+    /// Resume a paused service.
+    /// </summary>
+    /// <param name="wait">If true, waits up to 15 seconds for the service to resume. Default is true</param>
+    /// <exception cref="ServiceOperationException">An error occured while accessing Windows API.</exception>
+    /// <exception cref="PermissionsException">Not enough permissions to do this.</exception>
+    /// <exception cref="UnexpectedException">An unexpected error.</exception>
+    public void Resume(bool wait = true)
     {
         if (_serviceController.Status == ServiceControllerStatus.Paused)
         {
@@ -60,29 +92,32 @@ public class Service
                 _serviceController.Continue();
                 if (wait)
                 {
-                    _serviceController.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(15)); // Aligning timeout with Start method
+                    _serviceController.WaitForStatus(ServiceControllerStatus.Running,
+                        TimeSpan.FromSeconds(15)); // Aligning timeout with Start method
                 }
             }
             catch (System.ComponentModel.Win32Exception ex)
             {
-                Console.WriteLine($"Error continuing service: {ex.Message}");
-                Console.WriteLine("Make sure you have the necessary permissions to continue this service.");
-                return;
+                throw new ServiceOperationException();
             }
             catch (InvalidOperationException ex)
             {
-                Console.WriteLine($"Error continuing service: {ex.Message}");
-                Console.WriteLine("Make sure you have the necessary permissions to continue this service.");
-                return;
+                throw new PermissionsException();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Unexpected error: {ex.Message}");
-                return;
+                throw new UnexpectedException($"Unexpected error: {ex.Message}");
             }
         }
     }
 
+    /// <summary>
+    /// Pause a running service.
+    /// </summary>
+    /// <param name="wait">If true, waits up to 15 seconds for the service to pause. Default is true</param>
+    /// <exception cref="ServiceOperationException">An error occured while accessing Windows API.</exception>
+    /// <exception cref="PermissionsException">Not enough permissions to do this.</exception>
+    /// <exception cref="UnexpectedException">An unexpected error.</exception>
     public void Pause(bool wait = true)
     {
         if (_serviceController.Status == ServiceControllerStatus.Running)
@@ -92,38 +127,48 @@ public class Service
                 _serviceController.Pause();
                 if (wait)
                 {
-                    _serviceController.WaitForStatus(ServiceControllerStatus.Paused, TimeSpan.FromSeconds(15)); // Aligning timeout with Start method
+                    _serviceController.WaitForStatus(ServiceControllerStatus.Paused,
+                        TimeSpan.FromSeconds(15)); // Aligning timeout with Start method
                 }
             }
             catch (System.ComponentModel.Win32Exception ex)
             {
-                Console.WriteLine($"Error pausing service: {ex.Message}");
-                Console.WriteLine("Make sure you have the necessary permissions to pause this service.");
-                return;
+                throw new ServiceOperationException();
             }
             catch (InvalidOperationException ex)
             {
-                Console.WriteLine($"Error pausing service: {ex.Message}");
-                Console.WriteLine("Make sure you have the necessary permissions to pause this service.");
-                return;
+                throw new PermissionsException();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Unexpected error: {ex.Message}");
-                return;
+                throw new UnexpectedException($"Unexpected error: {ex.Message}");
             }
         }
     }
 
+    /// <summary>
+    /// Restart the service
+    /// </summary>
+    /// <param name="wait">If true, waits up to 15 seconds for the service to stop before starting it again. Default is true</param>
+    /// <exception cref="ServiceOperationException">An error occured while accessing Windows API.</exception>
+    /// <exception cref="PermissionsException">Not enough permissions to do this.</exception>
+    /// <exception cref="UnexpectedException">An unexpected error.</exception>
     public void Restart(bool wait = true)
     {
         if (_serviceController.Status == ServiceControllerStatus.Running)
         {
             Stop(wait);
         }
-        Start();
+        Start(wait);
     }
 
+    /// <summary>
+    /// Restart the service
+    /// </summary>
+    /// <param name="wait">If true, waits up to 15 seconds for the service to stop. Default is true.</param>
+    /// <exception cref="ServiceOperationException">An error occured while accessing Windows API.</exception>
+    /// <exception cref="PermissionsException">Not enough permissions to do this.</exception>
+    /// <exception cref="UnexpectedException">An unexpected error.</exception>
     public void Stop(bool wait = true)
     {
         if (_serviceController.Status != ServiceControllerStatus.Stopped)
@@ -133,28 +178,22 @@ public class Service
                 _serviceController.Stop();
                 if (wait)
                 {
-                    _serviceController.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(15)); // Aligning timeout with Start method
+                    _serviceController.WaitForStatus(ServiceControllerStatus.Stopped,
+                        TimeSpan.FromSeconds(15)); // Aligning timeout with Start method
                 }
             }
             catch (System.ComponentModel.Win32Exception ex)
             {
-                Console.WriteLine($"Error stopping service: {ex.Message}");
-                Console.WriteLine("Make sure you have the necessary permissions to stop this service.");
-                return;
+                throw new ServiceOperationException();
             }
             catch (InvalidOperationException ex)
             {
-                Console.WriteLine($"Error stopping service: {ex.Message}");
-                Console.WriteLine("Make sure you have the necessary permissions to stop this service.");
-                return;
+                throw new PermissionsException();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Unexpected error: {ex.Message}");
-                return;
+                throw new UnexpectedException($"Unexpected error: {ex.Message}");
             }
         }
-    } 
-    
-    // Add more methods like Stop(), Restart(), etc.
+    }
 }

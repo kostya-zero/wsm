@@ -25,7 +25,16 @@ public class StartCommand : ICommand
             }
 
             // Console.WriteLine("Trying to start service: " + service.DisplayName);
-            service.Start();
+            try
+            {
+                service.Start();
+            }
+            catch (Exception ex)
+            {
+                await console.Output.WriteLineAsync("Error occured: " + ex.Message);   
+                Environment.Exit(1);
+            }
+            
             service.Refresh();
             if (service.Status == ServiceControllerStatus.Running)
             {
