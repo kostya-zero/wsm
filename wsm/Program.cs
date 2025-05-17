@@ -1,12 +1,12 @@
-﻿using CliFx;
+﻿using Cocona;
+using wsm.Commands;
 
-namespace wsm
-{
-    public static class Program
-    {
-        public static async Task<int> Main() =>
-            await new CliApplicationBuilder().AddCommandsFromThisAssembly()
-                .Build()
-                .RunAsync();
-    }
-}
+var app = CoconaApp.Create();
+
+app.Environment.ApplicationName = "Windows Service Manager CLI";
+
+app.AddCommands<DefaultCommand>();
+app.AddCommands<StartCommand>();
+app.AddCommands<ListCommand>();
+
+app.Run();

@@ -1,54 +1,58 @@
 using System.ServiceProcess;
-using CliFx;
-using CliFx.Attributes;
-using CliFx.Infrastructure;
+using Cocona;
 using wsm.Models;
 using wsm.Repositories;
 
 namespace wsm.Commands;
 
-[Command("resume", Description = "Resume a paused service.")]
-public class ResumeCommand : ICommand
+public class ResumeCommand
 {
-    [CommandParameter(0, Description = "The name of the service to resume.")]
-    public required string Name { get; init; }
-
-    public async ValueTask ExecuteAsync(IConsole console)
+    [Command("resume", Description = "Resume a paused service.")]
+    public void Resume(
+        [Argument(Description = "The name of the service to resume.")]
+        string name,
+        [Option("n", Description = "Do not wait for the service to start.")]
+        bool noWait = false
+    )
     {
-        Service? service = ServiceRepository.GetServiceByName(Name);
+        Service? service = ServiceRepository.GetServiceByName(name);
 
-        if (service != null)
+        if (service == null)
         {
-            if (service.Status != ServiceControllerStatus.Paused)
-            {
-                await console.Output.WriteLineAsync("Service is not paused.");
-                return;
-            }
+            Console.WriteLine("Service not found.");
+            return;
+        }
 
-            try
-            {
-                service.Resume(true);
-            }
-            catch (Exception ex)
-            {
-                await console.Output.WriteLineAsync("Error occured: " + ex.Message);   
-                Environment.Exit(1);
-            }
-            
-            service.Refresh();
+        if (service.Status != ServiceControllerStatus.Paused)
+        {
+            Console.WriteLine("Service is not paused.");
+            return;
+        }
 
-            if (service.Status == ServiceControllerStatus.Running)
+        try
+        {
+            service.Resume(!noWait);
+            if (noWait)
             {
-                await console.Output.WriteLineAsync("Service resumed successfully.");
+                Console.WriteLine("Resuming service in the background...");
             }
             else
             {
-                await console.Output.WriteLineAsync("Failed to continue service.");
+                service.Refresh();
+                if (service.Status == ServiceControllerStatus.Running)
+                {
+                    Console.WriteLine("Service resumed successfully.");
+                }
+                else
+                {
+                    Console.WriteLine("Failed to resume service.");
+                }
             }
         }
-        else
+        catch (Exception ex)
         {
-            await console.Output.WriteLineAsync("Service not found.");
+            Console.WriteLine("Error occured: " + ex.Message);
+            Environment.Exit(1);
         }
     }
 }

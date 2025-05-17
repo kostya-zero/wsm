@@ -1,73 +1,59 @@
 using System.ServiceProcess;
-using CliFx;
-using CliFx.Attributes;
-using CliFx.Infrastructure;
+using Cocona;
 using wsm.Models;
 using wsm.Repositories;
 
 namespace wsm.Commands;
 
-[Command("stop", Description = "Stops a service.")]
-public class StopCommand : ICommand
+public class StopCommand
 {
-    [CommandParameter(0, Description = "The name of the service to stop.")]
-    public required string Name { get; init; }
-
-    [CommandOption("no-wait", 'n', Description = "Do not wait for the service to stop.")]
-    public bool NoWait { get; set; } = false;
-
-    public async ValueTask ExecuteAsync(IConsole console)
+    [Command("stop", Description = "Stops a service.")]
+    public async Task Stop(
+        [Argument(Description = "Name of the service.")]
+        string name,
+        [Option("n", Description = "Do not wait for the service to stop.")]
+        bool noWait = false
+    )
     {
-        Service? service = ServiceRepository.GetServiceByName(Name);
+        Service? service = ServiceRepository.GetServiceByName(name);
 
-        if (service != null)
+        if (service == null)
         {
-            if (service.Status == ServiceControllerStatus.Stopped)
+            Console.WriteLine("Service not found.");
+            return;
+        }
+
+        if (service.Status == ServiceControllerStatus.Stopped)
+        {
+            Console.WriteLine("Service is already stopped.");
+            return;
+        }
+
+        try
+        {
+            // Stop the service
+            service.Stop(!noWait);
+
+            if (noWait)
             {
-                console.Output.WriteLine("Service is already stopped.");
-                return;
-            }
-
-            var previousStatus = service.Status;
-            service.Stop(!NoWait);
-            if (!NoWait)
-            {
-                const int maxRetries = 10; // Maximum retries (50 * 280ms = 14 seconds)
-                int retryCount = 0;
-
-                while (service.Status != ServiceControllerStatus.Stopped && retryCount < maxRetries)
-                {
-                    await Task.Delay(1000);
-                    service.Refresh();
-                    retryCount++;
-
-                    if (retryCount > 1 && service.Status == previousStatus)
-                    {
-                        console.Output.WriteLine("Looks like the service is stuck. Please check the service status manually or try again later.");
-                        break;
-                    }
-                    previousStatus = service.Status;
-                }
-
-                if (retryCount >= maxRetries)
-                {
-                    console.Output.WriteLine("Service stop operation timed out. Please check the service status manually.");
-                }
-
-                if (service.Status == ServiceControllerStatus.Stopped)
-                {
-                    console.Output.WriteLine($"Service '{service.DisplayName}' stopped successfully.");
-                }
-                return;
+                Console.WriteLine("Stopping service in background...");
             }
             else
             {
-                console.Output.WriteLine("Stopping service in background...");
+                service.Refresh();
+                if (service.Status == ServiceControllerStatus.Stopped)
+                {
+                    Console.WriteLine("Service stopped successfully.");
+                }
+                else
+                {
+                    Console.WriteLine("Failed to stop service.");
+                }
             }
         }
-        else
+        catch (Exception ex)
         {
-            console.Output.WriteLine("Service not found.");
+            Console.WriteLine($"Error stopping service: {ex.Message}");
         }
     }
 }

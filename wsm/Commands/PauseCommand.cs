@@ -1,51 +1,63 @@
 ﻿using System.ServiceProcess;
-using CliFx;
-using CliFx.Attributes;
-using CliFx.Infrastructure;
+using Cocona;
 using wsm.Models;
 using wsm.Repositories;
 
 namespace wsm.Commands;
 
-[Command("pause", Description = "Pauses a service.")]
-public class PauseCommand : ICommand
+public class PauseCommand
 {
-    [CommandParameter(0, Description = "The name of the service to pause.")]
-    public required string Name { get; init; }
-    
-    public async ValueTask ExecuteAsync(IConsole console)
+    [Command("pause", Description = "Pauses a service.")]
+    public void Pause(
+        [Argument(Description = "The name of the service to pause.")]
+        string name,
+        [Option("n", Description = "Do not wait for the service to start.")]
+        bool noWait = false
+    )
     {
-        Service? service = ServiceRepository.GetServiceByName(Name);
-
-        if (service != null)
+        Service? service = ServiceRepository.GetServiceByName(name);
+        if (service == null)
         {
-            if (service.Status != ServiceControllerStatus.Running)
-            {
-                console.Output.WriteLine("Service is not running.");
-                return;
-            }
+            Console.WriteLine("Service not found.");
+            return;
+        }
 
-            if (service.Status == ServiceControllerStatus.Paused)
-            {
-                console.Output.WriteLine("Service is already paused.");
-                return;
-            }
+        if (service.Status != ServiceControllerStatus.Running)
+        {
+            Console.WriteLine("Service is not running.");
+            return;
+        }
 
-            service.Pause(true);
-            service.Refresh();
-            
-            if (service.Status == ServiceControllerStatus.Paused)
+        if (service.Status == ServiceControllerStatus.Paused)
+        {
+            Console.WriteLine("Service is already paused.");
+            return;
+        }
+
+        try
+        {
+            service.Pause(!noWait);
+            if (noWait)
             {
-                console.Output.WriteLine("Service paused successfully.");
+                Console.WriteLine("Pausing service in the background...");
             }
             else
             {
-                console.Output.WriteLine("Failed to pause service.");
+                service.Refresh();
+                if (service.Status == ServiceControllerStatus.Paused)
+                {
+                    Console.WriteLine("Service paused successfully.");
+                }
+                else
+                {
+                    Console.WriteLine("Failed to pause service.");
+                }
             }
         }
-        else
+        catch (Exception ex)
         {
-            console.Output.WriteLine("Service not found.");
+            Console.WriteLine("Error occured: " + ex.Message);
+            Environment.Exit(1);
         }
     }
 }

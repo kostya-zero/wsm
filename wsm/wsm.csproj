@@ -10,7 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="CliFx" Version="2.3.5" />
+      <PackageReference Include="Cocona" Version="2.2.0" />
       <PackageReference Include="System.ServiceProcess.ServiceController" Version="9.0.2" />
     </ItemGroup>
 

@@ -1,40 +1,59 @@
 using System.ServiceProcess;
-using CliFx;
-using CliFx.Attributes;
-using CliFx.Infrastructure;
+using Cocona;
 using wsm.Models;
 using wsm.Repositories;
 
 namespace wsm.Commands;
 
-[Command("restart", Description = "Restarts a service.")]
-public class RestartCommand : ICommand
+public class RestartCommand
 {
-    [CommandParameter(0, Description = "The name of the service to restart.")]
-    public required string Name { get; init; }
-    public async ValueTask ExecuteAsync(IConsole console)
+    [Command("restart", Description = "Restarts a service.")]
+    public void Restart(
+        [Argument(Description = "The name of the service to restart.")]
+        string name,
+        [Option("n", Description = "Do not wait for the service to start.")]
+        bool noWait = false
+    )
     {
-        Service? service = ServiceRepository.GetServiceByName(Name);
-
-        if (service != null)
+        Service? service = ServiceRepository.GetServiceByName(name);
+        if (service == null)
         {
-            if (service.Status == ServiceControllerStatus.Stopped)
-            {
-                console.Output.WriteLine("Service is not running.");
-                return;
-            }
+            Console.WriteLine("Service not found.");
+            return;
+        }
 
-            // Console.WriteLine("Trying to start service: " + service.DisplayName);
-            service.Restart(true);
-            service.Refresh();
-            if (service.Status == ServiceControllerStatus.Running)
+        if (service.Status == ServiceControllerStatus.Stopped)
+        {
+            Console.WriteLine("Service is not running.");
+            return;
+        }
+
+        // Console.WriteLine("Trying to start service: " + service.DisplayName);
+
+        try
+        {
+            service.Restart(!noWait);
+            if (noWait)
             {
-                console.Output.WriteLine("Service restarted successfully.");
+                Console.WriteLine("Restarting service in the background...");
+            }
+            else
+            {
+                service.Refresh();
+                if (service.Status == ServiceControllerStatus.Running)
+                {
+                    Console.WriteLine("Service restarted successfully.");
+                }
+                else
+                {
+                    Console.WriteLine("Failed to restart service.");
+                }
             }
         }
-        else
+        catch (Exception ex)
         {
-            console.Output.WriteLine("Service not found.");
+            Console.WriteLine("Error occured: " + ex.Message);
+            Environment.Exit(1);
         }
     }
 }

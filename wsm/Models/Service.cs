@@ -1,5 +1,4 @@
 ﻿using System.ServiceProcess;
-using System.Security.Principal;
 using wsm.Exceptions;
 
 namespace wsm.Models;
@@ -7,12 +6,12 @@ namespace wsm.Models;
 /// <summary>
 /// Base class for service that utilizes the ServiceController class.
 /// </summary>
-public class Service
+public class Service(ServiceController serviceController)
 {
     /// <summary>
     /// The ServiceController instance that interacts with the Windows service.
     /// </summary>
-    private readonly ServiceController _serviceController;
+    private readonly ServiceController _serviceController = serviceController;
 
     /// <summary>
     /// The display name of the service.
@@ -29,16 +28,11 @@ public class Service
     /// </summary>
     public ServiceControllerStatus Status => _serviceController.Status;
 
-    public Service(ServiceController serviceController)
-    {
-        _serviceController = serviceController;
-    }
-
     /// <summary>
     /// Start the service
     /// </summary>
     /// <param name="wait">If true, waits up to 15 seconds for the service to start. Default is true</param>
-    /// <exception cref="ServiceOperationException">An error occured while accessing Windows API.</exception>
+    /// <exception cref="ServiceOperationException">An error occurred while accessing Windows API.</exception>
     /// <exception cref="PermissionsException">Not enough permissions to do this.</exception>
     /// <exception cref="UnexpectedException">An unexpected error.</exception>
     public void Start(bool wait = true)
@@ -53,11 +47,11 @@ public class Service
                     _serviceController.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(15));
                 }
             }
-            catch (System.ComponentModel.Win32Exception ex)
+            catch (System.ComponentModel.Win32Exception)
             {
                 throw new ServiceOperationException();
             }
-            catch (InvalidOperationException ex)
+            catch (InvalidOperationException)
             {
                 throw new PermissionsException();
             }
@@ -96,11 +90,11 @@ public class Service
                         TimeSpan.FromSeconds(15)); // Aligning timeout with Start method
                 }
             }
-            catch (System.ComponentModel.Win32Exception ex)
+            catch (System.ComponentModel.Win32Exception)
             {
                 throw new ServiceOperationException();
             }
-            catch (InvalidOperationException ex)
+            catch (InvalidOperationException)
             {
                 throw new PermissionsException();
             }
@@ -131,11 +125,11 @@ public class Service
                         TimeSpan.FromSeconds(15)); // Aligning timeout with Start method
                 }
             }
-            catch (System.ComponentModel.Win32Exception ex)
+            catch (System.ComponentModel.Win32Exception)
             {
                 throw new ServiceOperationException();
             }
-            catch (InvalidOperationException ex)
+            catch (InvalidOperationException)
             {
                 throw new PermissionsException();
             }
@@ -163,7 +157,7 @@ public class Service
     }
 
     /// <summary>
-    /// Restart the service
+    /// Stop the service
     /// </summary>
     /// <param name="wait">If true, waits up to 15 seconds for the service to stop. Default is true.</param>
     /// <exception cref="ServiceOperationException">An error occured while accessing Windows API.</exception>
@@ -182,11 +176,11 @@ public class Service
                         TimeSpan.FromSeconds(15)); // Aligning timeout with Start method
                 }
             }
-            catch (System.ComponentModel.Win32Exception ex)
+            catch (System.ComponentModel.Win32Exception)
             {
                 throw new ServiceOperationException();
             }
-            catch (InvalidOperationException ex)
+            catch (InvalidOperationException)
             {
                 throw new PermissionsException();
             }
