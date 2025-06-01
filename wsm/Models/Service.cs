@@ -27,6 +27,8 @@ public class Service(ServiceController serviceController)
     /// Status of the service.
     /// </summary>
     public ServiceControllerStatus Status => _serviceController.Status;
+    
+    public ServiceStartMode StartType => _serviceController.StartType;
 
     /// <summary>
     /// Start the service

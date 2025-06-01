@@ -12,6 +12,6 @@
 
     <ItemGroup>
         <PackageReference Include="Cocona" Version="2.2.0"/>
-        <PackageReference Include="System.ServiceProcess.ServiceController" Version="9.0.2"/>
+        <PackageReference Include="System.ServiceProcess.ServiceController" Version="9.0.5" />
     </ItemGroup>
 </Project>
