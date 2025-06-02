@@ -24,10 +24,51 @@ public class Service(ServiceController serviceController)
     public string ServiceName => _serviceController.ServiceName;
 
     /// <summary>
+    /// The description of the service, retrieved from the Windows registry.
+    /// </summary>
+    public string Description
+    {
+        get
+        {
+            string keyPath = $@"SYSTEM\CurrentControlSet\Services\{_serviceController.ServiceName}";
+            using (var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(keyPath))
+            {
+                if (key != null)
+                {
+                    string rawDescription = key.GetValue("Description")?.ToString() ?? "No description available.";
+                    if (rawDescription.StartsWith('@'))
+                    {
+                        string? description = ResourceManager.ExpandResourceString(rawDescription);
+                        return description ?? rawDescription;
+                    }
+                    
+                    return rawDescription;
+                }
+
+                return "No description available.";
+            }
+        }
+        set => Description = value;
+    }
+
+    /// <summary>
+    /// List of services that depend on this service by display name.
+    /// </summary>
+    public string[] Dependent => _serviceController.DependentServices.Select(t => t.DisplayName).ToArray();
+    
+    /// <summary>
+    /// List of services that this service depends on by display name.
+    /// </summary>
+    public string[] DependsOn => _serviceController.ServicesDependedOn.Select(t => t.DisplayName).ToArray();
+
+    /// <summary>
     /// Status of the service.
     /// </summary>
     public ServiceControllerStatus Status => _serviceController.Status;
-    
+
+    /// <summary>
+    /// The start type of the service.
+    /// </summary>
     public ServiceStartMode StartType => _serviceController.StartType;
 
     /// <summary>
@@ -155,6 +196,7 @@ public class Service(ServiceController serviceController)
         {
             Stop(wait);
         }
+
         Start(wait);
     }
 
