@@ -28,8 +28,6 @@ public class RestartCommand
             return;
         }
 
-        // Console.WriteLine("Trying to start service: " + service.DisplayName);
-
         try
         {
             service.Restart(!noWait);
