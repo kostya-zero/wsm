@@ -31,22 +31,12 @@ public class Service(ServiceController serviceController)
         get
         {
             string keyPath = $@"SYSTEM\CurrentControlSet\Services\{_serviceController.ServiceName}";
-            using (var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(keyPath))
-            {
-                if (key != null)
-                {
-                    string rawDescription = key.GetValue("Description")?.ToString() ?? "No description available.";
-                    if (rawDescription.StartsWith('@'))
-                    {
-                        string? description = ResourceManager.ExpandResourceString(rawDescription);
-                        return description ?? rawDescription;
-                    }
-                    
-                    return rawDescription;
-                }
-
-                return "No description available.";
-            }
+            using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(keyPath);
+            if (key == null) return "No description available.";
+            string rawDescription = key.GetValue("Description")?.ToString() ?? "No description available.";
+            if (!rawDescription.StartsWith('@')) return rawDescription;
+            string? description = ResourceManager.ExpandResourceString(rawDescription);
+            return description ?? rawDescription;
         }
         set => Description = value;
     }
@@ -55,11 +45,49 @@ public class Service(ServiceController serviceController)
     /// List of services that depend on this service by display name.
     /// </summary>
     public string[] Dependent => _serviceController.DependentServices.Select(t => t.DisplayName).ToArray();
-    
+
+    /// <summary>
+    /// The path to the executable of the service, retrieved from the Windows registry.
+    /// </summary>
+    public string PathToExecutable
+    {
+        get
+        {
+            string keyPath = $@"SYSTEM\CurrentControlSet\Services\{_serviceController.ServiceName}";
+            using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(keyPath);
+            if (key != null)
+            {
+                return key.GetValue("ImagePath")?.ToString() ?? "Error.";
+            }
+
+            return "Error.";
+        }
+        set => PathToExecutable = value;
+    }
+
     /// <summary>
     /// List of services that this service depends on by display name.
     /// </summary>
     public string[] DependsOn => _serviceController.ServicesDependedOn.Select(t => t.DisplayName).ToArray();
+
+    /// <summary>
+    /// The user account under which the service runs, retrieved from the Windows registry.
+    /// </summary>
+    public string RunAs
+    {
+        get
+        {
+            string keyPath = $@"SYSTEM\CurrentControlSet\Services\{_serviceController.ServiceName}";
+            using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(keyPath);
+            if (key != null)
+            {
+                return key.GetValue("ObjectName")?.ToString() ?? "Unknown";
+            }
+
+            return "Unknown";
+        }
+        set => RunAs = value;
+    }
 
     /// <summary>
     /// Status of the service.

@@ -6,18 +6,15 @@ namespace wsm.Commands;
 
 public class InfoCommand
 {
-    public static void WriteWrapped(string text, int width = 0)
+    public static void WriteWrapped(string text, int width)
     {
-        if (width == 0)
-            width = Console.WindowWidth;
-
         var words = text.Split(' ');
         var line = "";
 
         foreach (var word in words)
         {
             // +1 is for space
-            if ((line.Length + word.Length + 1) > width)
+            if (line.Length + word.Length + 1 > width)
             {
                 Console.WriteLine(line.TrimEnd());
                 line = "";
@@ -43,9 +40,13 @@ public class InfoCommand
         
         Console.WriteLine("\n\x1b[1mStatus:\x1b[0m " + service.Status);
         Console.WriteLine("\x1b[1mStartup Type:\x1b[0m " + service.StartType);
+        Console.WriteLine("\x1b[1mRun As:\x1b[0m " + service.RunAs);
+        
+        Console.WriteLine("\x1b[1mPath to Executable:\x1b[0m ");
+        Console.WriteLine("  " + service.PathToExecutable);
         if (service.DependsOn.Length > 0)
         {
-            Console.WriteLine("\x1b[1mDepends On:\x1b[0m");
+            Console.WriteLine("\x1b[1mDependencies:\x1b[0m");
             foreach (var dependency in service.DependsOn)
             {
                 Console.WriteLine("  - " + dependency);

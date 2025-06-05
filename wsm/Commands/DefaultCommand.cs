@@ -8,7 +8,7 @@ public class DefaultCommand
     [PrimaryCommand]
     public void Default([FromService] ICoconaHelpMessageBuilder builder)
     {
-        Console.WriteLine("Windows Service Manager CLI");
+        Console.WriteLine("\x1b[1mWindows Services Manager CLI\x1b[0m");
         Console.WriteLine(builder.BuildAndRenderForCurrentContext());
     }
 }
