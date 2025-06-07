@@ -6,11 +6,31 @@ It also provides a way to list all services and filter them by their status.
 
 ## Installation
 
-TBW
+Get the archive with version for your architecture from the [releases page](https://github.com/kostya-zero/wsm/releases) and extract it to a directory in your PATH.
 
 ## Usage
+You can perform all basic operations with services:
+```powershell
+wsm start <service_name>
+wsm stop <service_name>
+wsm restart <service_name>
+wsm resume <service_name>
+wsm pause <service_name>
+```
 
-TBW
+Get the list of all services and sort them:
+```powershell
+# Sort by name
+wsm list
+
+# Custom sort order (e.g. by status)
+wsm list --sort status
+```
+
+Also get information about a specific service:
+```powershell
+wsm info <service_name>
+```
 
 ## License
 

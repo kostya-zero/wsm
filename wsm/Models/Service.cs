@@ -106,7 +106,7 @@ public class Service(ServiceController serviceController)
     /// <exception cref="ServiceOperationException">An error occurred while accessing Windows API.</exception>
     /// <exception cref="PermissionsException">Not enough permissions to do this.</exception>
     /// <exception cref="UnexpectedException">An unexpected error.</exception>
-    public void Start(bool wait = true)
+    public void Start(bool wait)
     {
         if (_serviceController.Status != ServiceControllerStatus.Running)
         {
@@ -148,7 +148,7 @@ public class Service(ServiceController serviceController)
     /// <exception cref="ServiceOperationException">An error occured while accessing Windows API.</exception>
     /// <exception cref="PermissionsException">Not enough permissions to do this.</exception>
     /// <exception cref="UnexpectedException">An unexpected error.</exception>
-    public void Resume(bool wait = true)
+    public void Resume(bool wait)
     {
         if (_serviceController.Status == ServiceControllerStatus.Paused)
         {
@@ -183,7 +183,7 @@ public class Service(ServiceController serviceController)
     /// <exception cref="ServiceOperationException">An error occured while accessing Windows API.</exception>
     /// <exception cref="PermissionsException">Not enough permissions to do this.</exception>
     /// <exception cref="UnexpectedException">An unexpected error.</exception>
-    public void Pause(bool wait = true)
+    public void Pause(bool wait)
     {
         if (_serviceController.Status == ServiceControllerStatus.Running)
         {
@@ -218,7 +218,7 @@ public class Service(ServiceController serviceController)
     /// <exception cref="ServiceOperationException">An error occured while accessing Windows API.</exception>
     /// <exception cref="PermissionsException">Not enough permissions to do this.</exception>
     /// <exception cref="UnexpectedException">An unexpected error.</exception>
-    public void Restart(bool wait = true)
+    public void Restart(bool wait)
     {
         if (_serviceController.Status == ServiceControllerStatus.Running)
         {
@@ -235,7 +235,7 @@ public class Service(ServiceController serviceController)
     /// <exception cref="ServiceOperationException">An error occured while accessing Windows API.</exception>
     /// <exception cref="PermissionsException">Not enough permissions to do this.</exception>
     /// <exception cref="UnexpectedException">An unexpected error.</exception>
-    public void Stop(bool wait = true)
+    public void Stop(bool wait)
     {
         if (_serviceController.Status != ServiceControllerStatus.Stopped)
         {
