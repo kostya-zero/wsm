@@ -1,4 +1,5 @@
-﻿using Cocona;
+﻿using System.Text;
+using Cocona;
 using wsm.Models;
 using wsm.Repositories;
 
@@ -9,20 +10,22 @@ public class InfoCommand
     public static void WriteWrapped(string text, int width)
     {
         var words = text.Split(' ');
-        var line = "";
+        StringBuilder bld = new StringBuilder();
 
         foreach (var word in words)
         {
             // +1 is for space
-            if (line.Length + word.Length + 1 > width)
+            if (bld.Length + word.Length + 1 > width)
             {
-                Console.WriteLine(line.TrimEnd());
-                line = "";
+                Console.WriteLine(bld.ToString().TrimEnd());
+                bld.Clear();
             }
-            line += word + " ";
+
+            bld.Append(word);
+            bld.Append(' ');
         }
-        if (line.Length > 0)
-            Console.WriteLine(line.TrimEnd());
+        if (bld.Length > 0)
+            Console.WriteLine(bld.ToString().TrimEnd());
     }
     
     [Command("info", Description = "Display information about the application.")]

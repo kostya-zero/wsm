@@ -28,7 +28,6 @@ public class StartCommand
             return;
         }
 
-        // Console.WriteLine("Trying to start service: " + service.DisplayName);
         try
         {
             service.Start(!noWait);

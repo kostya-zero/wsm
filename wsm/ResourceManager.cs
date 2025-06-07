@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace wsm;
 
-public class ResourceManager
+public static class ResourceManager
 {
     [DllImport("shlwapi.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     public static extern int SHLoadIndirectString(

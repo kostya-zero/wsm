@@ -4,7 +4,7 @@ using wsm.Models;
 
 namespace wsm.Repositories;
 
-public class ServiceRepository
+public static class ServiceRepository
 {
     public static IEnumerable<Service> GetAllServices()
     {
