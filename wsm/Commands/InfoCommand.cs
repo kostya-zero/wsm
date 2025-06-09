@@ -5,7 +5,7 @@ using wsm.Repositories;
 
 namespace wsm.Commands;
 
-public class InfoCommand
+public abstract class InfoCommand
 {
     public static void WriteWrapped(string text, int width)
     {
@@ -47,14 +47,12 @@ public class InfoCommand
         
         Console.WriteLine("\x1b[1mPath to Executable:\x1b[0m ");
         Console.WriteLine("  " + service.PathToExecutable);
-        if (service.DependsOn.Length > 0)
+        if (service.DependsOn.Length <= 0) return;
+        Console.WriteLine("\x1b[1mDependencies:\x1b[0m");
+        foreach (var dependency in service.DependsOn)
         {
-            Console.WriteLine("\x1b[1mDependencies:\x1b[0m");
-            foreach (var dependency in service.DependsOn)
-            {
-                Console.WriteLine("  - " + dependency);
-            }
+            Console.WriteLine("  - " + dependency);
         }
-        
+
     }
 }

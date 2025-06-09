@@ -5,7 +5,7 @@ using wsm.Repositories;
 
 namespace wsm.Commands;
 
-public class ResumeCommand
+public abstract class ResumeCommand
 {
     [Command("resume", Description = "Resume a paused service.")]
     public void Resume(

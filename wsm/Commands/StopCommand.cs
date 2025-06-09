@@ -5,7 +5,7 @@ using wsm.Repositories;
 
 namespace wsm.Commands;
 
-public class StopCommand
+public abstract class StopCommand
 {
     [Command("stop", Description = "Stops a service.")]
     public async Task Stop(
@@ -41,14 +41,9 @@ public class StopCommand
             else
             {
                 service.Refresh();
-                if (service.Status == ServiceControllerStatus.Stopped)
-                {
-                    Console.WriteLine("Service stopped successfully.");
-                }
-                else
-                {
-                    Console.WriteLine("Failed to stop service.");
-                }
+                Console.WriteLine(service.Status == ServiceControllerStatus.Stopped
+                    ? "Service stopped successfully."
+                    : "Failed to stop service.");
             }
         }
         catch (Exception ex)

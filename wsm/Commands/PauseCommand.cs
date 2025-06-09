@@ -5,7 +5,7 @@ using wsm.Repositories;
 
 namespace wsm.Commands;
 
-public class PauseCommand
+public abstract class PauseCommand
 {
     [Command("pause", Description = "Pauses a service.")]
     public void Pause(
@@ -44,14 +44,9 @@ public class PauseCommand
             else
             {
                 service.Refresh();
-                if (service.Status == ServiceControllerStatus.Paused)
-                {
-                    Console.WriteLine("Service paused successfully.");
-                }
-                else
-                {
-                    Console.WriteLine("Failed to pause service.");
-                }
+                Console.WriteLine(service.Status == ServiceControllerStatus.Paused
+                    ? "Service paused successfully."
+                    : "Failed to pause service.");
             }
         }
         catch (Exception ex)

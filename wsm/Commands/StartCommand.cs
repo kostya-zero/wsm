@@ -5,7 +5,7 @@ using wsm.Repositories;
 
 namespace wsm.Commands;
 
-public class StartCommand
+public abstract class StartCommand
 {
     [Command("start", Description = "Starts a service.")]
     public void Start(
@@ -38,14 +38,9 @@ public class StartCommand
             else
             {
                 service.Refresh();
-                if (service.Status == ServiceControllerStatus.Running)
-                {
-                    Console.WriteLine("Service started successfully.");
-                }
-                else
-                {
-                    Console.WriteLine("Failed to start service.");
-                }
+                Console.WriteLine(service.Status == ServiceControllerStatus.Running
+                    ? "Service started successfully."
+                    : "Failed to start service.");
             }
         }
         catch (Exception ex)

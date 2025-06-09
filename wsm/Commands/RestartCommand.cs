@@ -5,7 +5,7 @@ using wsm.Repositories;
 
 namespace wsm.Commands;
 
-public class RestartCommand
+public abstract class RestartCommand
 {
     [Command("restart", Description = "Restarts a service.")]
     public void Restart(
@@ -38,14 +38,9 @@ public class RestartCommand
             else
             {
                 service.Refresh();
-                if (service.Status == ServiceControllerStatus.Running)
-                {
-                    Console.WriteLine("Service restarted successfully.");
-                }
-                else
-                {
-                    Console.WriteLine("Failed to restart service.");
-                }
+                Console.WriteLine(service.Status == ServiceControllerStatus.Running
+                    ? "Service restarted successfully."
+                    : "Failed to restart service.");
             }
         }
         catch (Exception ex)

@@ -4,7 +4,7 @@ using wsm.Models;
 
 namespace wsm.Commands;
 
-public class ListCommand
+public abstract class ListCommand
 {
     [Command("list", Description = "List all services.")]
     public void List(

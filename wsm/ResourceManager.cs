@@ -6,7 +6,7 @@ namespace wsm;
 public static class ResourceManager
 {
     [DllImport("shlwapi.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-    public static extern int SHLoadIndirectString(
+    private static extern int SHLoadIndirectString(
         string pszSource,
         System.Text.StringBuilder pszOutBuf,
         int cchOutBuf,
@@ -15,9 +15,7 @@ public static class ResourceManager
     public static string? ExpandResourceString(string resource)
     {
         var sb = new System.Text.StringBuilder(1024);
-        int hr = SHLoadIndirectString(resource, sb, sb.Capacity, IntPtr.Zero);
-        if (hr == 0)
-            return sb.ToString();
-        return null;
+        var hr = SHLoadIndirectString(resource, sb, sb.Capacity, IntPtr.Zero);
+        return hr == 0 ? sb.ToString() : null;
     }
 }
