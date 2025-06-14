@@ -1,3 +1,6 @@
+> [!WARNING]
+> This project has been discontinued. I’ve realized that using PowerShell scripting is a more effective and native option than writing another program, as PowerShell is pre-installed on most Windows installations. Also, I want to focus primarily on Rust rather than other programming languages.
+
 # Windows Services Manager
 
 **WSM** is a command-line tool for managing Windows services. 
